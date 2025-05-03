@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AccountsDto {
- private String accountNumber;
+ private Long accountNumber;
  private String accountType;
  private String branchAddress;
 }
