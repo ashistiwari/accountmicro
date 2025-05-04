@@ -1,6 +1,7 @@
 package org.account.controller;
 
 import org.account.constant.AccountConstant;
+import org.account.dto.AccountsDto;
 import org.account.dto.CustomerDto;
 import org.account.dto.ResponseDto;
 import org.account.entity.Accounts;
@@ -21,9 +22,22 @@ public class AccountController {
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(new ResponseDto(AccountConstant.STATUS_201, AccountConstant.MESSAGE_200));
     }
+
+    @GetMapping("/fetch")
     public ResponseEntity<CustomerDto> fetchAccountDetails(@RequestParam String mobileNumber){
         CustomerDto customerDto = iAccountService.fetchAccountDetails(mobileNumber);
-        return ResponseEntity.ok().body(customerDto);
+        return ResponseEntity.status(HttpStatus.OK).body(customerDto);
+    }
+    @PutMapping("/update")
+    public ResponseEntity<ResponseDto> updateAccountDetails(@RequestBody CustomerDto customerDto){
+        boolean isUpdated=iAccountService.updateAccountDetails(customerDto);
+        if(isUpdated){
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDto(AccountConstant.STATUS_200,AccountConstant.MESSAGE_200));
+        }
+        else{
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ResponseDto(AccountConstant.STATUS_500,AccountConstant.MESSAGE_500));
+        }
     }
 
 }

@@ -44,11 +44,31 @@ public class IAccounntServiceImpl implements IAccountService {
 
     @Override
     public CustomerDto fetchAccountDetails(String mobileNumber) {
-        Customer customer=customerRepository.findByMobileNumber(mobileNumber).orElseThrow(()->new ResourceNotFOundException("Customer not found with this :"+mobileNumber));
-        Accounts account = accountRepository.findById(customer.getCustomerId()).orElseThrow(()->new ResourceNotFOundException("Account not found with this :"+customer.getCustomerId()));
+        Customer customer=customerRepository.findByMobileNumber(mobileNumber).orElseThrow(()->new ResourceNotFOundException("Customer","mobileNumber",mobileNumber));
+        Accounts account = accountRepository.findById(customer.getCustomerId()).orElseThrow(()->new ResourceNotFOundException("Account","customerId",customer.getCustomerId().toString()));
         CustomerDto customerDto=CustomerMapper.maptoCustomerDto(customer,new CustomerDto());
         customerDto.setAccountsDto(AccountMapper.mapToAccountsDto(account,new AccountsDto()));
         return customerDto;
+    }
+
+    @Override
+    public boolean updateAccountDetails(CustomerDto customerDto) {
+        boolean isupdated = false;
+        AccountsDto accountsDto = customerDto.getAccountsDto();
+        Accounts account = null;
+        if (accountsDto != null) {
+            account = accountRepository.findById(accountsDto.getAccountNumber())
+                    .orElseThrow(() -> new ResourceNotFOundException("Account", "AccountNumber", accountsDto.getAccountNumber().toString()));
+
+            AccountMapper.mapToAccounts(account, accountsDto);
+            accountRepository.save(account);
+            Long customerId = account.getCustomerId();
+            Customer customer = customerRepository.findById(customerId).orElseThrow(() -> new ResourceNotFOundException("Customer", "CustomerId", customerId.toString()));
+            CustomerMapper.mapToCustomer(customerDto, customer);
+            customerRepository.save(customer);
+            isupdated = true;
+        }
+        return isupdated;
     }
 
     private Accounts createNewAccount(Customer customer) {
